@@ -2,9 +2,9 @@
 
 from flask import Flask, jsonify, make_response
 from flask_migrate import Migrate
-from models import db, Earthquake
+from models import db, Earthquake  # and other models like Customer, Item, Review if defined
 
-# Initialize the app
+# Initialize Flask app
 app = Flask(__name__)
 
 # Configuration
@@ -16,12 +16,11 @@ app.json.compact = False
 db.init_app(app)
 migrate = Migrate(app, db)
 
-# Index route
+# Routes
 @app.route('/')
 def index():
     return make_response({'message': 'Flask SQLAlchemy Lab 1'}, 200)
 
-# Task #3: Get earthquake by ID
 @app.route('/earthquakes/<int:id>')
 def get_earthquake_by_id(id):
     quake = Earthquake.query.filter_by(id=id).first()
@@ -30,7 +29,6 @@ def get_earthquake_by_id(id):
     else:
         return jsonify({"message": f"Earthquake {id} not found."}), 404
 
-# Task #4: Get earthquakes matching magnitude
 @app.route('/earthquakes/magnitude/<float:magnitude>')
 def earthquakes_by_magnitude(magnitude):
     quakes = Earthquake.query.filter(Earthquake.magnitude >= magnitude).all()
@@ -39,6 +37,9 @@ def earthquakes_by_magnitude(magnitude):
         "quakes": [quake.to_dict() for quake in quakes]
     }), 200
 
-# Run the server
+# Make app visible to Flask CLI
+app = app  # ✅ critical
+
 if __name__ == '__main__':
     app.run(port=5555, debug=True)
+    
